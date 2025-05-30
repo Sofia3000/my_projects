@@ -1,0 +1,116 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="auction-page">
+        {% if auction.image %}
+            <div class="big-img white-img"><img class="auction-image" src="{{auction.image.url}}" alt="Image of auction"></div>
+        {% else %}
+            <div class="big-img white-img"><div class="auction-image"><div>No image</div></div></div>
+        {% endif %}
+        <div class="right-block">
+            {% if user.is_authenticated %}
+                {% if user != auction.owner %}
+                    <div class="action-block">
+                    <form method="post" action="{% url 'change_watchlist' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ auction.id }}">
+                    {% if auction in user.watchlist.all %}
+                        <div>You have this product in your watchlist. Do you want to delete it?</div>
+                        <input type="hidden" name="action" value="delete">
+                        <input class="red-btn big-btn" type="submit" value="Delete">
+                    {% else %}
+                        <div>Do you want to add this product in your watchlist?</div>
+                        <input type="hidden" name="action" value="add">
+                        <input class="green-btn big-btn" type="submit" value="Add">
+                    {% endif %}
+                    </form>
+                    </div>
+                    <div class="action-block">
+                        {% if auction.isactive %}
+                        <form method="post" action="{% url 'new_rate' %}">
+                            <div>Make a rate</div>
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ auction.id }}">
+                            <div class="form-group">
+                                <input class="form-control" type="number" min="0.0" step="0.01" placeholder="Rate" name="price">
+                            </div>
+                            <input class="green-btn big-btn" type="submit" value="Make a rate">
+                        </form>
+                        {% else %}
+                        <div>This auction is closed.</div>
+                        {% if max_rate.user == user %}
+                            <div>Congratulations! You won this auction.</div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="action-block">You are owner of this product.</div>
+                    <div class="action-block">
+                        {% if auction.isactive %}
+                        <form method="post" action="{% url 'close_auction' %}">
+                            <div>Close this auction?</div>
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ auction.id }}">
+                            <input class="red-btn big-btn" type="submit" value="Close">
+                        </form>
+                        {% else %}
+                        <div>You already closed this auction.</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="action-block">Sign in, if you want to change your watchlist, make a rate or see more information.</div>
+                {% if not auction.isactive %}
+                <div class="action-block">This auction is closed.</div>
+                {% endif %}
+            {% endif %}
+            
+        </div>
+        <div class="info">
+            <h3>Information about this product</h3>
+            <div class="big-text">
+                <div><b>Author:</b> {{auction.owner.username}}</div>
+                <div><b>Product:</b> {{auction.name}}</div>
+                <div><b>Start price:</b> ${{auction.start_rate}}</div>
+                <div><b>Current price:</b> 
+                    {% if max_rate %}
+                        ${{ max_rate.price }}
+                    {% else %}
+                        ${{auction.start_rate}}
+                    {% endif %}
+                </div>
+                <div><b>Category:</b> 
+                    {% if auction.category %}
+                        {{auction.category}}
+                    {% else %}
+                        No category
+                    {% endif %}
+                </div>
+                <div><b>Review:<br></b> {{auction.review}}</div>
+            </div>
+        </div>
+        {% if user.is_authenticated and user != auction.owner %}
+            <div class="add-comment">
+                <div>Leave your comment.</div>
+                <form method="post" action="{% url 'new_comment' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ auction.id }}">
+                    <div class="form-group">
+                        <textarea class="form-control" placeholder="Your comment..." name="text" maxlength="300" required></textarea>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Add">
+                </form>
+            </div>
+        {% endif %}
+        <div class="comments">
+            <h3>Comments</h3>
+            {% for comment in comments %}
+                <div class="comment">
+                    <div><b>{{comment.user.username}}:</b><br>{{comment.text}}</div>
+                </div>
+            {% empty %}
+                <div>There are not any comments about this auction.</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

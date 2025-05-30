@@ -1,0 +1,27 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 class="list-header">{{header}}</h2>
+    <div class="auction-grid">
+        {% for auction in auctions %}
+            <a class="black-link" href="{% url 'auction' auction.id %}">
+                <div class="auction-item">
+                    {% if auction.image %}
+                        <div class="img-container rborder"><img class="auction-image" src="{{auction.image.url}}" alt="Image of auction"></div>
+                    {% else %}
+                        <div class="auction-image rborder"><div>No image</div></div>
+                    {% endif %}
+                    <div class="auction-info">
+                        <div class="main-text-container">
+                            <div class="line">{{auction.name}}</div>
+                            <div class="line right">Price: ${{auction.start_rate}}</div>
+                        </div>
+                        <div class="review">{{auction.review}}</div>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="empty-message">{{message}}</div>
+        {% endfor %}
+    </div>
+{% endblock %}
