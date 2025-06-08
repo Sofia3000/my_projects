@@ -121,9 +121,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# for saving images
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR+'/media'
 
-# for @login_required
 LOGIN_URL = '/login'
