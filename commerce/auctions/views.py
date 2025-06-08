@@ -7,6 +7,9 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django import forms
 from decimal import *
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
 
 from .models import User, Category, Comment, Auction, Rate
 from . import utils
@@ -77,6 +80,15 @@ def register(request):
             return render(request, "auctions/register.html", {
                 "message": "You must enter all fields."
             })
+            
+        # Check if email is valid
+        try:
+            validate_email(email)
+        except ValidationError:
+            return render(request, "auctions/register.html", {
+                "message": "Enter a valid email address."
+            })
+            
         # Ensure password matches confirmation
         if password != confirmation:
             return render(request, "auctions/register.html", {
