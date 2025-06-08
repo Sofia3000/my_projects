@@ -39,6 +39,13 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
+        
+        # Check data
+        if not username or not password:
+            return render(request, "auctions/login.html", {
+                "message": "You must enter all fields."
+            })
+            
         user = authenticate(request, username=username, password=password)
 
         # Check if authentication successful
@@ -63,10 +70,14 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
-
-        # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
+        # Check data
+        if not username or not email or not password or not confirmation:
+            return render(request, "auctions/register.html", {
+                "message": "You must enter all fields."
+            })
+        # Ensure password matches confirmation
         if password != confirmation:
             return render(request, "auctions/register.html", {
                 "message": "Passwords must match."
